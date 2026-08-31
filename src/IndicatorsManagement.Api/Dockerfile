@@ -21,8 +21,8 @@ RUN dotnet publish -c Release -o /app/publish --no-restore
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 
-# Create non-root user
-RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
+# Create non-root user (Debian/Ubuntu-style — the .NET 10 base image uses Debian).
+RUN groupadd --system appgroup && useradd --system --gid appgroup --create-home appuser
 
 COPY --from=build /app/publish .
 
