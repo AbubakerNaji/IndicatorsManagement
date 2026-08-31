@@ -2,20 +2,12 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-# Copy solution and project files for restore
-COPY IndicatorsManagement.slnx ./
-COPY src/IndicatorsManagement.Domain/*.csproj src/IndicatorsManagement.Domain/
-COPY src/IndicatorsManagement.Contracts/*.csproj src/IndicatorsManagement.Contracts/
-COPY src/IndicatorsManagement.Application/*.csproj src/IndicatorsManagement.Application/
-COPY src/IndicatorsManagement.Infrastructure/*.csproj src/IndicatorsManagement.Infrastructure/
-COPY src/IndicatorsManagement.Api/*.csproj src/IndicatorsManagement.Api/
-
-RUN dotnet restore IndicatorsManagement.slnx
-
-# Copy everything and build
+# Copy the whole source tree — simpler and avoids .slnx restore quirks in SDK 10.0.400
+# where analyzers restored via .slnx aren't visible to a per-project publish.
 COPY src/ src/
+
 WORKDIR /src/src/IndicatorsManagement.Api
-RUN dotnet publish -c Release -o /app/publish --no-restore
+RUN dotnet publish -c Release -o /app/publish
 
 # Stage 2: Runtime
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
