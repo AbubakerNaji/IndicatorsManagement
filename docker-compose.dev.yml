@@ -1,0 +1,34 @@
+# Local development dependencies only — SQL Server on localhost:1433.
+# The API and the frontend run on the host (`dotnet run`, `npm run dev`).
+#
+#   cp .env.example .env
+#   docker compose -f docker-compose.dev.yml up -d
+#
+# Both application databases (IndicatorsManagement and IndicatorsManagement_Hangfire)
+# are created automatically: EF Core migrations create the first on API startup,
+# Hangfire creates the second on first connection.
+
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: indicators-db-dev
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=${DB_SA_PASSWORD:-Local_Dev_P@ssw0rd_2026}
+      - MSSQL_PID=Developer
+    # Host port is configurable: if something already holds 1433, set DB_HOST_PORT in
+    # .env and update the connection strings in appsettings.Development.json to match.
+    ports:
+      - "${DB_HOST_PORT:-1433}:1433"
+    volumes:
+      - sqlserver_dev_data:/var/opt/mssql
+    healthcheck:
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$${MSSQL_SA_PASSWORD}" -Q "SELECT 1" -C -No || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+volumes:
+  sqlserver_dev_data:

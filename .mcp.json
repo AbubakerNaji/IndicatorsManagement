@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "mssql-server": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "mssql-mcp-server"],
+      "env": {
+        "DB_SERVER": "${DB_SERVER:-localhost}",
+        "DB_PORT": "${DB_PORT:-1433}",
+        "DB_USER": "${DB_USER:-sa}",
+        "DB_PASSWORD": "${DB_PASSWORD}",
+        "DB_DATABASE": "${DB_DATABASE:-IndicatorsManagement}"
+      }
+    }
+  }
+}

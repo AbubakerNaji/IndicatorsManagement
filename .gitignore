@@ -1,0 +1,74 @@
+## .NET
+bin/
+obj/
+## Stray build output created with Windows separators (a literal "bin\Debug" directory),
+## which the "bin/" rule above does not match.
+bin\\Debug/
+bin\\Release/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.vs/
+.vscode/
+*.DotSettings.user
+
+## Build
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+build/
+bld/
+
+## NuGet
+*.nupkg
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+
+## Logs
+logs/
+*.log
+
+## OS
+.DS_Store
+Thumbs.db
+
+## Secrets and per-environment configuration
+## appsettings.json holds NO secrets; every environment supplies its own.
+## Templates (*.example) are committed — the real files are not.
+appsettings.Development.json
+appsettings.Production.json
+appsettings.Staging.json
+appsettings.Local.json
+!appsettings.*.json.example
+*.pfx
+*.key
+*.pem
+secrets.json
+
+## Environment variables
+.env
+.env.local
+.env.*.local
+!.env.example
+
+## Node (frontend)
+node_modules/
+dist/
+.next/
+
+## Runtime artifacts
+uploads/
+
+## Docker
+docker-compose.override.yml
+
+## AI assistant local state
+.claude/settings.local.json
+
+## Superseded tooling (specs now live in openspec/)
+.kiro/
+
+# Bind-mounted deployment data (S10/O1)
+data/

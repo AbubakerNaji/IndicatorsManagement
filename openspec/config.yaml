@@ -1,0 +1,78 @@
+schema: spec-driven
+
+# Project context shown to any AI agent creating OpenSpec artifacts.
+# Keep this in sync with Docs/ — Docs/ is the long form, this is the briefing.
+context: |
+  PROJECT
+  IndicatorsManagement — نظام إدارة المؤشرات. A bilingual (Arabic-first, English
+  optional) indicators management system for the Libyan Ministry of Economy and Trade.
+  Tracks 120 economic/statistical indicators across 15 organizational entities through
+  a two-level approval workflow, with dimensional breakdowns, publication control,
+  reporting obligations, notifications, and a full audit trail.
+
+  STACK
+  - Backend: .NET 10, ASP.NET Core Web API, EF Core 10 (SQL Server 2022),
+    ASP.NET Core Identity + JWT, FluentValidation, Mapster, Hangfire, Serilog.
+  - Frontend: React 19 + TypeScript 5.7 + Vite 6 + Tailwind CSS 4 (TailAdmin base),
+    Redux Toolkit (auth only), React Router 7, Axios.
+  - Tests: xUnit + FluentAssertions + EF Core InMemory (`tests/IndicatorsManagement.Tests`).
+  - Solution file is `.slnx` (XML format), not `.sln`.
+
+  ARCHITECTURE — 5 projects under src/
+    Domain          entities + enums, zero external dependencies (except Identity.Stores)
+    Contracts       request/response DTOs + shared constants (Roles, ConfigKeys)
+    Application     service interfaces + FluentValidation validators
+    Infrastructure  EF Core DbContext, migrations, seeding, service implementations, Hangfire jobs
+    Api             controllers, middleware, authorization policies, composition root
+
+  Dependency rule: dependencies point inward. Domain depends on nothing.
+  KNOWN DEVIATION: service implementations currently live in Infrastructure rather than
+  Application, so business logic sits outside the layer that owns it. Documented in
+  Docs/02-architecture.md and Docs/13-review-findings.md (finding A1). Do not deepen
+  this coupling; new business logic should be written so it can move.
+
+  CONVENTIONS
+  - Tables are snake_case (`indicators`, `reporting_periods`); entities are PascalCase.
+  - Enums persist as strings via `.HasConversion<string>()` — never as ints.
+  - Money/measures are `decimal(18,4)`.
+  - FK delete behaviour is `NoAction` by default; `Cascade` only for true compositions.
+  - Bilingual fields come in `*Ar` (required) / `*En` (optional) pairs.
+  - Soft delete via `IsDeleted` on IndicatorEntry and Attachment; filtered unique indexes
+    exclude soft-deleted and Rejected rows.
+  - Services return `ApiResponse<T>` / `ApiResponse`; user-facing messages are in Arabic.
+  - Routes are `api/v1/<kebab-case-plural>`; every controller is `[Authorize]` by default.
+  - Frontend keeps API calls in `src/services/*Service.ts` — components never call axios directly.
+
+  WORKFLOW STATE MACHINE (IndicatorEntry.WorkflowState)
+    Draft ──submit──> Under_Review ──approve-entity──> Approved_By_Entity
+      ──approve-ministry──> Final_Approved
+    Under_Review ──return──> Returned_For_Modification ──submit──> Under_Review
+    Under_Review | Approved_By_Entity ──reject──> Rejected
+  PublicationStatus (Unpublished/Published) is deliberately independent of WorkflowState.
+
+  SECURITY RULES — non-negotiable
+  - No secret, connection string, password, or host ever goes into a committed file.
+    `appsettings.json` holds empty placeholders; real values come from
+    appsettings.Development.json (git-ignored), user-secrets, or environment variables.
+  - The local database is SQL Server on localhost:1433 via docker-compose.dev.yml.
+  - 7 roles: Super_Admin, Ministry_Admin, Entity_Admin, Data_Entry_User, Reviewer,
+    Auditor, Viewer. Authorization is enforced at the controller; entity-scoping is
+    enforced in the service layer using the caller's EntityId claim.
+
+  BEFORE PROPOSING WORK
+  Read Docs/README.md, then Docs/13-review-findings.md — the open findings there are the
+  backlog. Verify claims against code; the docs describe intent, the code is the truth.
+
+rules:
+  proposal:
+    - State the user-visible outcome first, then the technical change.
+    - Always include a "Non-goals" section.
+    - Name the affected layers (Domain / Contracts / Application / Infrastructure / Api / frontend).
+  design:
+    - Call out any change to the workflow state machine, the database schema, or the role matrix explicitly.
+    - Every schema change requires a named EF Core migration; say what it is called.
+    - Note whether the change is backward compatible for existing seeded data.
+  tasks:
+    - "Break tasks into chunks of at most two hours."
+    - "Order tasks so `dotnet build` and `dotnet test` stay green after each one."
+    - "The final task is always to update the affected files under Docs/."

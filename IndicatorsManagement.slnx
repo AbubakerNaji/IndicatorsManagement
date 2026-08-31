@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/IndicatorsManagement.Api/IndicatorsManagement.Api.csproj" />
+    <Project Path="src/IndicatorsManagement.Application/IndicatorsManagement.Application.csproj" />
+    <Project Path="src/IndicatorsManagement.Contracts/IndicatorsManagement.Contracts.csproj" />
+    <Project Path="src/IndicatorsManagement.Domain/IndicatorsManagement.Domain.csproj" />
+    <Project Path="src/IndicatorsManagement.Infrastructure/IndicatorsManagement.Infrastructure.csproj" />
+  </Folder>
+</Solution>
