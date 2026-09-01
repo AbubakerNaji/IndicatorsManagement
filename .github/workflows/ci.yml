@@ -133,7 +133,7 @@ jobs:
           git fetch --all -q
           git reset --hard origin/main -q
           echo "▶ Rebuilding + restarting…"
-          sudo -n docker compose up -d --build
+          docker compose up -d --build
           echo "▶ Waiting for /health…"
           for i in $(seq 1 60); do
             if curl -fsS http://localhost:8080/health >/dev/null 2>&1; then
@@ -143,6 +143,6 @@ jobs:
             sleep 2
           done
           echo "✗ API did not become healthy in 120s"
-          sudo -n docker compose logs --tail=40 api
+          docker compose logs --tail=40 api
           exit 1
 
