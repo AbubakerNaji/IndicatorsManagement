@@ -2,8 +2,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-# Copy the whole source tree — simpler and avoids .slnx restore quirks in SDK 10.0.400
-# where analyzers restored via .slnx aren't visible to a per-project publish.
+# Copy the whole source tree — simpler and avoids .slnx restore quirks.
 COPY src/ src/
 
 WORKDIR /src/src/IndicatorsManagement.Api
