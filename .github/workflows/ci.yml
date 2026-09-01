@@ -113,3 +113,36 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+  # Auto-deploy on the internal server (192.168.1.170) using a self-hosted runner.
+  # The runner is installed on the server itself, so GitHub Actions doesn't need to
+  # reach it over the internet — the runner polls GitHub. Skips silently if the
+  # self-hosted runner is offline.
+  deploy:
+    name: Deploy to indicators server
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [backend, frontend]
+    runs-on: [self-hosted, indicators-server]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Rebuild and restart the stack
+        working-directory: /home/abubaker/IndicatorsManagement
+        run: |
+          set -euo pipefail
+          echo "▶ Pulling latest…"
+          git fetch --all -q
+          git reset --hard origin/main -q
+          echo "▶ Rebuilding + restarting…"
+          sudo -n docker compose up -d --build
+          echo "▶ Waiting for /health…"
+          for i in $(seq 1 60); do
+            if curl -fsS http://localhost:8080/health >/dev/null 2>&1; then
+              echo "✓ API healthy after ${i}s"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "✗ API did not become healthy in 120s"
+          sudo -n docker compose logs --tail=40 api
+          exit 1
+

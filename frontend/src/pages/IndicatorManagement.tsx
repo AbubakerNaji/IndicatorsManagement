@@ -123,7 +123,8 @@ export default function IndicatorManagement() {
     setError("");
     try {
       if (editId) {
-        const { code: _, ...updateData } = form;
+        const { code: _unusedCode, ...updateData } = form;
+        void _unusedCode;
         const res = await indicatorService.update(editId, updateData as unknown as Record<string, unknown>);
         if (!res.data.success) { setError(res.data.message || "حدث خطأ"); return; }
       } else {
