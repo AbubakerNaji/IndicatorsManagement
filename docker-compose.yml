@@ -29,6 +29,10 @@ services:
       - "8080:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
+      # O2 — migrations are opt-in outside Development. Enable for this deploy so
+      # the DB schema + seed data are created on first startup. Flip to false after
+      # first successful run if you prefer running EF migrations by hand.
+      - Database__MigrateOnStartup=true
       - ConnectionStrings__DefaultConnection=Server=db;Database=IndicatorsManagement;User ID=sa;Password=${DB_SA_PASSWORD};TrustServerCertificate=True;
       - ConnectionStrings__HangfireConnection=Server=db;Database=IndicatorsManagement_Hangfire;User ID=sa;Password=${DB_SA_PASSWORD};TrustServerCertificate=True;
       - Jwt__SecretKey=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required — see .env.example}
