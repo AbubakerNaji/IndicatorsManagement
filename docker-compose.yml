@@ -45,6 +45,8 @@ services:
       - Smtp__FromEmail=${SMTP_FROM_EMAIL:-noreply@indicators.local}
       - Smtp__EnableSsl=${SMTP_ENABLE_SSL:-true}
       - UploadsRoot=/app/uploads
+      # S8 — admin seed password comes from .env; the seeder refuses the fallback in Production.
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:?ADMIN_PASSWORD is required — see .env.example}
     volumes:
       - api_uploads:/app/uploads
       - api_logs:/app/logs
