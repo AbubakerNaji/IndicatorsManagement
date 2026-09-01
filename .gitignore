@@ -70,5 +70,6 @@ docker-compose.override.yml
 ## Superseded tooling (specs now live in openspec/)
 .kiro/
 
-# Bind-mounted deployment data (S10/O1)
-data/
+# Bind-mounted deployment data (S10/O1) — anchored to the repo root so it doesn't
+# match src/IndicatorsManagement.Infrastructure/Data/ on case-insensitive filesystems.
+/data/
